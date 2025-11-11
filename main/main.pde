@@ -3,8 +3,11 @@ int currentScene = 0; // 0 = intro, 1 = register, 2 = game
 String playerName = "";
 int selectedCharacter = 0; // 0, 1, or 2
 NameBox nameBox;
-WordList[] wordListArray = new WordList[3]; 
-
+WordList [] wordListArray = new WordList[3]; 
+String level = "easy"; // "easy", "medium", "hard"
+StringList wordsToShowEasy;
+StringList wordsToShowMedium;
+StringList wordsToShowHard;
 
 void setup() {
   background(255);
@@ -12,11 +15,41 @@ void setup() {
   size(800, 600);
 
   // Initialize word lists
-  wordListArray[0] = new WordList(new String[]{"apple", "banana", "cherry"});
-  wordListArray[1] = new WordList(new String[]{"dog", "elephant", "frog"});
-  wordListArray[2] = new WordList(new String[]{"grape", "honeydew", "kiwi"});
-}
+  wordListArray[0] = new WordList();
+  wordListArray[0].easy = new String[]{"cat", "bear", "fish", "bird"};
+  wordListArray[0].medium = new String[]{"dolphin", "eagle", "turtle", "kangaroo"};
+  wordListArray[0].hard = new String[]{"amphibian", "nocturnal", "camouflage", "habitat"};
 
+  wordListArray[1] = new WordList();
+  wordListArray[1].easy = new String[]{"red", "blue", "green", "yellow"};
+  wordListArray[1].medium = new String[]{"purple", "orange", "indigo", "violet"};
+  wordListArray[1].hard = new String[]{"turquoise", "magenta", "chartreuse", "cerulean"};
+
+  wordListArray[2] = new WordList();
+  wordListArray[2].easy = new String[]{"desk", "teacher", "homework", "pencil"};
+  wordListArray[2].medium = new String[]{"cafeteria", "assignment"};
+  wordListArray[2].hard = new String[]{"curriculum", "extracurricular"}; 
+
+
+  wordsToShowEasy = new StringList();
+  wordsToShowMedium = new StringList();
+  wordsToShowHard = new StringList();
+
+  for (int i = 0; i < wordListArray.length; i++) {
+    for (int j = 0; j < wordListArray[i].easy.length; j++) {
+      String word = wordListArray[i].easy[j];
+      wordsToShowEasy.append(word);
+    }
+    for (int j = 0; j < wordListArray[i].medium.length; j++) {
+      String word = wordListArray[i].medium[j];
+      wordsToShowMedium.append(word);
+    }
+    for (int j = 0; j < wordListArray[i].hard.length; j++) {
+      String word = wordListArray[i].hard[j];
+      wordsToShowHard.append(word);
+    }
+  }
+} 
 void draw () {
   if (currentScene == 0) {
     drawIntro();
@@ -76,9 +109,7 @@ class NameBox {
 
 
 class WordList {
-  String[] words;
-
-  WordList(String[] words_) {
-    words = words_;
-  }
+  String [] easy = new String[4];
+  String [] medium = new String[4];
+  String [] hard = new String[4];
 }

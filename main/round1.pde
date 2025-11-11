@@ -10,6 +10,9 @@ String draggingWord = null;
 float dragX = 0, dragY = 0;
 
 
+
+
+
 void drawGame() {
   background(30, 40, 50);
   fill(255);
@@ -32,7 +35,7 @@ void drawGame() {
   int totalWidth = bagCount * bagWidth + (bagCount - 1) * spacing;
   int startX = (width - totalWidth) / 2;
   int y = height - bagHeight - 30; // 30 px above bottom edge
-
+  
   
 
   // Initialize bag objects once using the computed layout
@@ -48,14 +51,12 @@ void drawGame() {
   fill(0);
   textAlign(LEFT, TOP);
   textSize(16);
-  String[] wordsToShow = wordListArray[selectedCharacter].words;
-  for (int i = 0; i < wordsToShow.length; i++) {
-    text(wordsToShow[i], 160 + (i % 5) * 100
-          , 110 + (i / 5) * 20);
+  level = "easy";
+
+  
+  for (int i = 0; i < wordsToShowEasy.size(); i++) {
+    text(wordsToShowEasy.get(i), 160 + (i % 5) * 100, 110 + (i / 5) * 20);
   }
-
-
-
   //bags
 
   for (int i = 0; i < bags.length; i++) {
@@ -96,22 +97,21 @@ void gameMousePressed() {
     return;
   }
 
-  // Check if any bag clicked
+
   // Check if clicked on a word in the word list (start dragging)
-  String[] wordsToShow = wordListArray[selectedCharacter].words;
-  for (int i = 0; i < wordsToShow.length; i++) {
+  for (int i = 0; i < wordsToShowEasy.size(); i++) {
     float tx = 160 + (i % 5) * 100;
     float ty = 110 + (i / 5) * 20;
-    float tw = textWidth(wordsToShow[i]) + 8;
+    float tw = textWidth(wordsToShowEasy.get(i)) + 8;
     float th = 18;
     if (mouseX >= tx && mouseX <= tx + tw && mouseY >= ty && mouseY <= ty + th) {
       // remove the word from the word list and begin dragging it
-      draggingWord = wordsToShow[i];
+      draggingWord = wordsToShowEasy.get(i);
       dragging = true;
       dragX = mouseX;
       dragY = mouseY;
       // remove from array
-      wordListArray[selectedCharacter].words = removeAt(wordsToShow, i);
+      wordsToShowEasy.remove(i);
       return;
     }
   }
@@ -147,11 +147,11 @@ void mouseReleased() {
     }
   }
   // otherwise return it to the current word list (append to the end)
-  String[] cur = wordListArray[selectedCharacter].words;
+  String[] cur = wordListArray[selectedCharacter].easy;
   String[] appended = new String[cur.length + 1];
   for (int k = 0; k < cur.length; k++) appended[k] = cur[k];
   appended[cur.length] = draggingWord;
-  wordListArray[selectedCharacter].words = appended;
+  wordListArray[selectedCharacter].easy = appended;
   dragging = false;
   draggingWord = null;
 }
