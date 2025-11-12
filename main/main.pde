@@ -4,10 +4,12 @@ String playerName = "";
 int selectedCharacter = 0; // 0, 1, or 2
 NameBox nameBox;
 WordList [] wordListArray = new WordList[3]; 
-String level = "easy"; // "easy", "medium", "hard"
 StringList wordsToShowEasy;
 StringList wordsToShowMedium;
 StringList wordsToShowHard;
+StringList wordsToShow;
+StringList wordsToFind;
+int selectedLevel = 0; // 0 = easy, 1 = medium, 2 = hard
 
 void setup() {
   background(255);
@@ -49,6 +51,9 @@ void setup() {
       wordsToShowHard.append(word);
     }
   }
+  wordsToShow = new StringList();
+  stageWords = new StringList();
+
 } 
 void draw () {
   if (currentScene == 0) {
@@ -57,8 +62,13 @@ void draw () {
     nameBox = new NameBox(100, 140, 300, 40, "");
     drawRegister();
   } else if (currentScene == 2) {
-    drawGame();
+    drawSelectLevel();
+  } else if (currentScene == 3) {  
+    drawDragGame();
+  } else if (currentScene == 4) {
+    drawFindGame();
   }
+
 }
 
 void mousePressed() {
@@ -67,7 +77,11 @@ void mousePressed() {
   } else if (currentScene == 1) {
     registerMousePressed();
   } else if (currentScene == 2) {
+    selectLevelMousePressed();
+  } else if (currentScene == 3) {
     gameMousePressed();
+  } else if (currentScene == 4) {
+    findGameMousePressed();
   }
 }
 
