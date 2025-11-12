@@ -9,11 +9,15 @@ boolean dragging = false;
 String draggingWord = null;
 float dragX = 0, dragY = 0;
 
+int draggingIndex = -1; // store original index so we can restore if not dropped in bag
+
+boolean putInBag = false;
+// Next button when wordsToShow is empty
+int dragNextBtnX, dragNextBtnY, dragNextBtnW, dragNextBtnH;
 
 
 
-
-void drawGame() {
+void drawDragGame() {
   background(30, 40, 50);
   fill(255);
   textSize(20);
@@ -45,20 +49,19 @@ void drawGame() {
 
   //word bank 
   fill(255);
-  rect(150, 100, bagWidth*2, 100, 12);
+  rect(150, 100, bagWidth*2+50, 100, 12);
 
   // Word list display
   fill(0);
   textAlign(LEFT, TOP);
   textSize(16);
-  level = "easy";
 
-  
-  for (int i = 0; i < wordsToShowEasy.size(); i++) {
-    text(wordsToShowEasy.get(i), 160 + (i % 5) * 100, 110 + (i / 5) * 20);
+  for (int i = 0; i < wordsToShow.size(); i++) {
+    text(wordsToShow.get(i), 160 + (i % 5) * 100, 110 + (i / 5) * 20);
   }
-  //bags
+    
 
+  //bags
   for (int i = 0; i < bags.length; i++) {
     bags[i].draw(i == selectedBag);
   }
@@ -79,6 +82,20 @@ void drawGame() {
   textSize(16);
   text("BACK", width - 90, height - 45);
 
+  // show Next button when the visible bank is empty
+  if (wordsToShow == null || wordsToShow.size() == 0) {
+    dragNextBtnW = 140;
+    dragNextBtnH = 36;
+    dragNextBtnX = width/2 - dragNextBtnW/2;
+    dragNextBtnY = height - 70;
+    fill(80, 120, 240);
+    rect(dragNextBtnX, dragNextBtnY, dragNextBtnW, dragNextBtnH, 6);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(14);
+    text("Next", dragNextBtnX + dragNextBtnW/2, dragNextBtnY + dragNextBtnH/2);
+  }
+
   // draw dragging word on top if any
   if (dragging && draggingWord != null) {
     fill(255, 220, 100);
@@ -93,25 +110,34 @@ void gameMousePressed() {
   // Check if back button clicked
   if (mouseX > width - 150 && mouseX < width - 30 &&
       mouseY > height - 70 && mouseY < height - 20) {
-    currentScene = 1;
+    currentScene = 2;
     return;
+  }
+
+  // If the bank is empty, check the Next button to advance
+  if (wordsToShow == null || wordsToShow.size() == 0) {
+    if (mouseX > dragNextBtnX && mouseX < dragNextBtnX + dragNextBtnW &&
+        mouseY > dragNextBtnY && mouseY < dragNextBtnY + dragNextBtnH) {
+      currentScene = 4;
+      return;
+    }
   }
 
 
   // Check if clicked on a word in the word list (start dragging)
-  for (int i = 0; i < wordsToShowEasy.size(); i++) {
+  for (int i = 0; i < wordsToShow.size(); i++) {
     float tx = 160 + (i % 5) * 100;
     float ty = 110 + (i / 5) * 20;
-    float tw = textWidth(wordsToShowEasy.get(i)) + 8;
+    float tw = textWidth(wordsToShow.get(i)) + 8;
     float th = 18;
     if (mouseX >= tx && mouseX <= tx + tw && mouseY >= ty && mouseY <= ty + th) {
-      // remove the word from the word list and begin dragging it
-      draggingWord = wordsToShowEasy.get(i);
+      // begin dragging: take the word out of the visible bank so it disappears while dragged
+      draggingWord = wordsToShow.get(i);
+      draggingIndex = i;
+      wordsToShow.remove(i);
       dragging = true;
       dragX = mouseX;
       dragY = mouseY;
-      // remove from array
-      wordsToShowEasy.remove(i);
       return;
     }
   }
@@ -127,7 +153,6 @@ void gameMousePressed() {
   }
 }
 
-// Track dragging position while mouse is down
 void mouseDragged() {
   if (dragging) {
     dragX = mouseX;
@@ -143,17 +168,23 @@ void mouseReleased() {
       bags[i].addWord(draggingWord);
       dragging = false;
       draggingWord = null;
+      putInBag = true;
       return;
     }
   }
-  // otherwise return it to the current word list (append to the end)
-  String[] cur = wordListArray[selectedCharacter].easy;
-  String[] appended = new String[cur.length + 1];
-  for (int k = 0; k < cur.length; k++) appended[k] = cur[k];
-  appended[cur.length] = draggingWord;
-  wordListArray[selectedCharacter].easy = appended;
+  // otherwise the word was released outside any bag — restore it to the word bank
+  if (draggingWord != null) {
+    // Reinsert at original position if possible, otherwise append
+    StringList newList = new StringList();
+    int insertPos = constrain(draggingIndex, 0, wordsToShow.size());
+    for (int k = 0; k < insertPos; k++) newList.append(wordsToShow.get(k));
+    newList.append(draggingWord);
+    for (int k = insertPos; k < wordsToShow.size(); k++) newList.append(wordsToShow.get(k));
+    wordsToShow = newList;
+  }
   dragging = false;
   draggingWord = null;
+  draggingIndex = -1;
 }
 
 class Bag {
@@ -204,9 +235,32 @@ class Bag {
 
     // show number of words inside
     fill(255);
-    textSize(12);
+    textSize(20);
     textAlign(RIGHT, TOP);
     text("(" + contents.size() + ")", x + w - 8, y + 6);
+
+    // draw words inside the bag (top-left area)
+    // simple layout: left-aligned lines, limited by available height
+    noStroke();
+    textSize(20);
+    textAlign(LEFT, TOP);
+    fill(255);
+    int padding = 10;
+    float tx = x + padding;
+    float ty = y + padding + 6; // leave some space under flap/edge
+    int lineHeight = 14;
+    int availableHeight = h - padding * 2 - 24; // reserve space for label/count
+    int maxLines = max(0, availableHeight / lineHeight);
+    for (int i = 0; i < contents.size() && i < maxLines; i++) {
+      String word = contents.get(i);
+      text(word, tx, ty + i * lineHeight);
+    }
+    if (contents.size() > maxLines && maxLines > 0) {
+      String more = "+" + (contents.size() - maxLines) + " more";
+      textAlign(LEFT, TOP);
+      textSize(12);
+      text(more, tx, ty + maxLines * lineHeight);
+    }
   }
 
   boolean contains(int px, int py) {

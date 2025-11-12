@@ -49,7 +49,10 @@ void drawRegister() {
     }
   }
   
+  
   // Confirm button
+  stroke(0);
+  strokeWeight(1);
   fill(50, 200, 50);
   rect(width/2 - 75, 480, 150, 60);
   fill(255);
