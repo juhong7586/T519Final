@@ -1,14 +1,16 @@
+import processing.data.StringList;
 
 int currentScene = 0; // 0 = intro, 1 = register, 2 = game
 String playerName = "";
 int selectedCharacter = 0; // 0, 1, or 2
 NameBox nameBox;
-WordList [] wordListArray = new WordList[3]; 
-StringList wordsToShowEasy;
-StringList wordsToShowMedium;
-StringList wordsToShowHard;
-StringList wordsToShow;
-StringList wordsToFind;
+StringList wordsToUse; 
+WordPair [] wordPairs;
+WordPair [] wordsDirection;
+WordPair [] wordsBuilding;
+WordPair [] wordsNavigation;
+WordPair [] wordsToShow;
+WordPair [] wordsToFind;
 int selectedLevel = 0; // 0 = easy, 1 = medium, 2 = hard
 
 void setup() {
@@ -17,44 +19,21 @@ void setup() {
   size(800, 600);
 
   // Initialize word lists
-  wordListArray[0] = new WordList();
-  wordListArray[0].easy = new String[]{"cat", "bear", "fish", "bird"};
-  wordListArray[0].medium = new String[]{"dolphin", "eagle", "turtle", "kangaroo"};
-  wordListArray[0].hard = new String[]{"amphibian", "nocturnal", "camouflage", "habitat"};
+  wordsDirection = new WordPair[]{
+    new WordPair("top", "the highest part"),
+    new WordPair("bottom", "the lowest part"),
+    new WordPair("right", "the side opposite to left"),
+    new WordPair("left", "the side opposite to right")
+  };
+  wordsToUse = new StringList();
 
-  wordListArray[1] = new WordList();
-  wordListArray[1].easy = new String[]{"red", "blue", "green", "yellow"};
-  wordListArray[1].medium = new String[]{"purple", "orange", "indigo", "violet"};
-  wordListArray[1].hard = new String[]{"turquoise", "magenta", "chartreuse", "cerulean"};
-
-  wordListArray[2] = new WordList();
-  wordListArray[2].easy = new String[]{"desk", "teacher", "homework", "pencil"};
-  wordListArray[2].medium = new String[]{"cafeteria", "assignment"};
-  wordListArray[2].hard = new String[]{"curriculum", "extracurricular"}; 
-
-
-  wordsToShowEasy = new StringList();
-  wordsToShowMedium = new StringList();
-  wordsToShowHard = new StringList();
-
-  for (int i = 0; i < wordListArray.length; i++) {
-    for (int j = 0; j < wordListArray[i].easy.length; j++) {
-      String word = wordListArray[i].easy[j];
-      wordsToShowEasy.append(word);
-    }
-    for (int j = 0; j < wordListArray[i].medium.length; j++) {
-      String word = wordListArray[i].medium[j];
-      wordsToShowMedium.append(word);
-    }
-    for (int j = 0; j < wordListArray[i].hard.length; j++) {
-      String word = wordListArray[i].hard[j];
-      wordsToShowHard.append(word);
-    }
+  for (int j = 0; j < wordsDirection.length; j++) {
+    String word = wordsDirection[j].word;
+    wordsToUse.append(word);
   }
-  wordsToShow = new StringList();
-  stageWords = new StringList();
+  wordPairs = new WordPair[wordsToUse.size()];
+}
 
-} 
 void draw () {
   if (currentScene == 0) {
     drawIntro();
@@ -62,11 +41,12 @@ void draw () {
     nameBox = new NameBox(100, 140, 300, 40, "");
     drawRegister();
   } else if (currentScene == 2) {
-    drawSelectLevel();
-  } else if (currentScene == 3) {  
-    drawDragGame();
-  } else if (currentScene == 4) {
-    drawFindGame();
+    
+    drawLearnWords(wordsDirection);
+  } else if (currentScene == 3) {
+    // Map scene drawing function (if any)
+    initMapCamera();
+    drawMap();
   }
 
 }
@@ -77,11 +57,7 @@ void mousePressed() {
   } else if (currentScene == 1) {
     registerMousePressed();
   } else if (currentScene == 2) {
-    selectLevelMousePressed();
-  } else if (currentScene == 3) {
-    gameMousePressed();
-  } else if (currentScene == 4) {
-    findGameMousePressed();
+    learnWordsMousePressed(); 
   }
 }
 
@@ -106,7 +82,7 @@ class NameBox {
     }
 
     void display() {
-      if (nameBox.focused == true) {
+      if (this.focused == true) {
         stroke(255);
         strokeWeight(2);
       }else{
@@ -122,8 +98,13 @@ class NameBox {
 }
 
 
-class WordList {
-  String [] easy = new String[4];
-  String [] medium = new String[4];
-  String [] hard = new String[4];
+class WordPair {
+  String word; 
+  String imagePath;
+
+  WordPair(String word, String imagePath) {
+    this.word = word;
+    this.imagePath = imagePath;
+  }
+  
 }

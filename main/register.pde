@@ -1,6 +1,3 @@
-
-
-// RegisterScene.pde
 void drawRegister() {
   background(150, 100, 150);
   
