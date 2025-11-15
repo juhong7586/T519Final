@@ -30,7 +30,7 @@ void initMapCamera() {
 
     // The camera can be initialized directly using an
     // element from the array returned by list():
-    cam = new Capture(this, 200, 140, "pipeline:avfvideosrc device-index=1", 30);
+    cam = new Capture(this, width, height, "pipeline:avfvideosrc device-index=1", 30);
     cam.start();
     mapCameraInitialized = true;
   }
@@ -57,4 +57,37 @@ void drawMap() {
   }
 
   
+}
+
+void recognizeObjectsInMap() {
+  // Recognize pond
+  if (cam != null) {
+    // Process the camera feed to recognize the pond
+    // This is a placeholder for the actual recognition logic
+    color pondColor = color(0, 0, 255); // Example: looking for blue color
+    color parkColor = color(0, 255, 0); // Example: looking for green color
+    color bridgeColor = color(139, 69, 19); // Example: looking for brown color
+    color riverColor = color(0, 191, 255); // Example: looking for deep sky blue color
+    color schoolColor = color(255, 255, 0); // Example: looking for yellow color
+
+
+    cam.loadPixels();
+    color currentPixel;
+    for (int i = 0; i < cam.pixels.length; i++) {
+      currentPixel = cam.pixels[i];
+      // Dummy loop for processing pixels
+      if (currentPixel == pondColor) {
+        println("Pond recognized!");
+      } else if (currentPixel == parkColor) {
+        println("Park recognized!");
+      } else if (currentPixel == bridgeColor) {
+        println("Bridge recognized!");
+      } else if (currentPixel == riverColor) {
+        println("River recognized!");
+      } else if (currentPixel == schoolColor) {
+        println("School recognized!");
+      }
+    }
+
+  }
 }
