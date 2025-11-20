@@ -30,7 +30,7 @@ void initMapCamera() {
 
     // The camera can be initialized directly using an
     // element from the array returned by list():
-    cam = new Capture(this, width, height, "pipeline:avfvideosrc device-index=1", 30);
+    cam = new Capture(this, width, height, "pipeline:avfvideosrc device-index=0", 30);
     cam.start();
     mapCameraInitialized = true;
   }
@@ -69,6 +69,7 @@ void recognizeObjectsInMap() {
     color bridgeColor = color(139, 69, 19); // Example: looking for brown color
     color riverColor = color(0, 191, 255); // Example: looking for deep sky blue color
     color schoolColor = color(255, 255, 0); // Example: looking for yellow color
+    color theaterColor = color(255, 74, 14); // Example: looking for magenta color
 
 
     cam.loadPixels();
@@ -76,18 +77,43 @@ void recognizeObjectsInMap() {
     for (int i = 0; i < cam.pixels.length; i++) {
       currentPixel = cam.pixels[i];
       // Dummy loop for processing pixels
-      if (currentPixel == pondColor) {
+      // Use a tolerance-based color comparison instead of exact equality
+      float tol = 60; // Euclidean tolerance in RGB space (xax0-441)
+      if (colorWithinRange(currentPixel, pondColor, tol)) {
         println("Pond recognized!");
-      } else if (currentPixel == parkColor) {
+      } else if (colorWithinRange(currentPixel, parkColor, tol)) {
         println("Park recognized!");
-      } else if (currentPixel == bridgeColor) {
+      } else if (colorWithinRange(currentPixel, bridgeColor, tol)) {
         println("Bridge recognized!");
-      } else if (currentPixel == riverColor) {
+      } else if (colorWithinRange(currentPixel, riverColor, tol)) {
         println("River recognized!");
-      } else if (currentPixel == schoolColor) {
+      } else if (colorWithinRange(currentPixel, schoolColor, tol)) {
         println("School recognized!");
+      } else if (colorWithinRange(currentPixel, theaterColor, tol)) {
+        println("Theater recognized!");
       }
     }
 
   }
+}
+
+// Helper: return true if two colors are within `tol` distance in RGB space
+boolean colorWithinRange(color a, color b, float tol) {
+  float dr = red(a) - red(b);
+  float dg = green(a) - green(b);
+  float db = blue(a) - blue(b);
+  float dist = sqrt(dr*dr + dg*dg + db*db);
+  return dist <= tol;
+}
+
+// Alternative helper using HSB hue distance (useful when lighting varies)
+boolean hueWithinRange(color a, color b, float hueTol) {
+  // Save current mode and switch to HSB for reading hue
+  colorMode(HSB, 360, 100, 100);
+  float ha = hue(a);
+  float hb = hue(b);
+  float dh = abs(ha - hb);
+  if (dh > 180) dh = 360 - dh; // wrap-around
+  colorMode(RGB, 255);
+  return dh <= hueTol;
 }

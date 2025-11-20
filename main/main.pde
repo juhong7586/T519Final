@@ -16,14 +16,18 @@ int selectedLevel = 0; // 0 = easy, 1 = medium, 2 = hard
 void setup() {
   background(255);
   
-  size(800, 600);
+  size(1000, 600);
 
   // Initialize word lists
   wordsDirection = new WordPair[]{
-    new WordPair("top", "the highest part"),
-    new WordPair("bottom", "the lowest part"),
-    new WordPair("right", "the side opposite to left"),
-    new WordPair("left", "the side opposite to right")
+    new WordPair("forward", "forward.png"),
+    new WordPair("right", "right.png"),
+    new WordPair("left", "left.png")
+  };
+
+  wordsNavigation = new WordPair[]{
+    new WordPair("go", "up.png"),
+    new WordPair("turn", "down.png")
   };
   wordsToUse = new StringList();
 
@@ -31,6 +35,11 @@ void setup() {
     String word = wordsDirection[j].word;
     wordsToUse.append(word);
   }
+
+  for (int j = 0; j < wordsNavigation.length; j++) {
+    String word = wordsNavigation[j].word;
+    wordsToUse.append(word);
+  } 
   wordPairs = new WordPair[wordsToUse.size()];
 }
 
@@ -43,7 +52,9 @@ void draw () {
   } else if (currentScene == 2) {
     
     drawLearnWords(wordsDirection);
-  } else if (currentScene == 3) {
+  } else if (currentScene == 4) {
+    drawSentenceBuilder();
+  } else if (currentScene == 3 && showResults == true) {
     // Map scene drawing function (if any)
     initMapCamera();
     drawMap();
@@ -58,6 +69,20 @@ void mousePressed() {
     registerMousePressed();
   } else if (currentScene == 2) {
     learnWordsMousePressed(); 
+  } else if (currentScene == 4) {
+    sentenceBuilderMousePressed();
+  }
+}
+
+void mouseDragged() {
+  if (currentScene == 4) {
+    sentenceBuilderMouseDragged();
+  }
+}
+
+void mouseReleased() {
+  if (currentScene == 4) {
+    sentenceBuilderMouseReleased();
   }
 }
 
@@ -99,12 +124,23 @@ class NameBox {
 
 
 class WordPair {
-  String word; 
-  String imagePath;
+  String word;
+  PImage image;
 
+  // Construct with a loaded PImage
+  WordPair(String word, PImage img) {
+    this.word = word;
+    this.image = img;
+  }
+
+  // Convenience: construct with an image filename (loaded from data/)
   WordPair(String word, String imagePath) {
     this.word = word;
-    this.imagePath = imagePath;
+    if (imagePath != null && imagePath.length() > 0) {
+      this.image = loadImage(imagePath);
+    } else {
+      this.image = null;
+    }
   }
-  
+
 }
