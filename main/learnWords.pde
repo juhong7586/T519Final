@@ -268,7 +268,7 @@ void learnWordsMousePressed() {
     // Go to Map (check this first so the visible Go-to-Map button is handled)
     if (mouseX > btnX - btnW/2 && mouseX < btnX + btnW/2 && mouseY > btnY - btnH/2 && mouseY < btnY + btnH/2) {
         if (correctAll) {
-            currentScene = 4; // Switch to map scene
+            currentScene = 3; // Switch to map scene
             } else {
                 checkConnections();
                 return;

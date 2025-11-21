@@ -1,6 +1,8 @@
+
+
 import processing.data.StringList;
 
-int currentScene = 0; // 0 = intro, 1 = register, 2 = game
+int currentScene = 3; // 0 = intro, 1 = register, 2 = game
 String playerName = "";
 int selectedCharacter = 0; // 0, 1, or 2
 NameBox nameBox;
@@ -41,6 +43,7 @@ void setup() {
     wordsToUse.append(word);
   } 
   wordPairs = new WordPair[wordsToUse.size()];
+  initMapCamera();
 }
 
 void draw () {
@@ -54,9 +57,10 @@ void draw () {
     drawLearnWords(wordsDirection);
   } else if (currentScene == 4) {
     drawSentenceBuilder();
-  } else if (currentScene == 3 && showResults == true) {
+  //  } else if (currentScene == 3 && showResults == true) {
+  } else if (currentScene == 3) {
     // Map scene drawing function (if any)
-    initMapCamera();
+    
     drawMap();
   }
 
@@ -69,9 +73,12 @@ void mousePressed() {
     registerMousePressed();
   } else if (currentScene == 2) {
     learnWordsMousePressed(); 
+  } else if (currentScene == 3) {
+    // Map scene mouse pressed function (if any)
+    mapMousePressed();
   } else if (currentScene == 4) {
     sentenceBuilderMousePressed();
-  }
+}
 }
 
 void mouseDragged() {
@@ -89,6 +96,8 @@ void mouseReleased() {
 void keyPressed() {
   if (currentScene == 1) {
     registerKeyPressed();
+  } else if(currentScene == 3){
+    mapKeyPressed();
   }
 }
 

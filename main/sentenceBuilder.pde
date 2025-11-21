@@ -56,7 +56,7 @@ void drawSentenceBuilder() {
     initSentenceBuilder();
   }
 
-  background(200, 220, 255);
+  background(capturedPhoto);
   // Title
   fill(0);
   textSize(32);

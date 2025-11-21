@@ -27,6 +27,3 @@ void introMousePressed() {
     currentScene = 1;
   }
 }
-
-
-
